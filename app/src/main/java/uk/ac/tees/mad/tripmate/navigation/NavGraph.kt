@@ -6,9 +6,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import uk.ac.tees.mad.tripmate.screens.AuthScreen
+import uk.ac.tees.mad.tripmate.screens.HomeScreen
 import uk.ac.tees.mad.tripmate.screens.SplashScreen
 
 import uk.ac.tees.mad.tripmate.viewmodel.AuthViewModel
+import uk.ac.tees.mad.tripmate.viewmodel.TripViewModel
 
 @Composable
 fun NavGraph(
@@ -16,6 +18,7 @@ fun NavGraph(
     startDestination: String = Screen.Splash.route
 ) {
     val authViewModel: AuthViewModel = viewModel()
+    val tripViewModel: TripViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -49,6 +52,15 @@ fun NavGraph(
         }
 
         composable(Screen.Home.route) {
+            HomeScreen(
+                onNavigateToTrip = { tripId ->
+                    navController.navigate(Screen.Trip.createRoute(tripId))
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Screen.Settings.route)
+                },
+                viewModel = tripViewModel
+            )
         }
 
         composable(Screen.Trip.route) {
