@@ -3,11 +3,14 @@ package uk.ac.tees.mad.tripmate.navigation
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import uk.ac.tees.mad.tripmate.screens.AuthScreen
 import uk.ac.tees.mad.tripmate.screens.HomeScreen
 import uk.ac.tees.mad.tripmate.screens.SplashScreen
+import uk.ac.tees.mad.tripmate.screens.TripScreen
 
 import uk.ac.tees.mad.tripmate.viewmodel.AuthViewModel
 import uk.ac.tees.mad.tripmate.viewmodel.TripViewModel
@@ -63,7 +66,22 @@ fun NavGraph(
             )
         }
 
-        composable(Screen.Trip.route) {
+        composable(
+            route = Screen.Trip.route,
+            arguments = listOf(
+                navArgument("tripId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val tripId = backStackEntry.arguments?.getString("tripId") ?: "new"
+            TripScreen(
+                tripId = tripId,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                viewModel = tripViewModel
+            )
         }
 
         composable(Screen.Settings.route) {
