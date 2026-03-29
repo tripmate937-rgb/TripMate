@@ -603,24 +603,159 @@ private fun DeleteTripDialog(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun TripScreenPreview() {
-    val sampleTrip = Trip(
-        id = "1",
-        title = "Summer Vacation",
-        destination = "Bali, Indonesia",
-        startDate = System.currentTimeMillis(),
-        endDate = System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000),
-        activities = "Beach activities, temple tours, surfing lessons"
-    )
+    MaterialTheme {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFF5F5F5))
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text(
+                            text = "Trip Details",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF673AB7)
+                        )
 
-    Surface {
-        TripForm(
-            trip = sampleTrip,
-            validationError = null,
-            onTitleChange = {},
-            onDestinationChange = {},
-            onStartDateChange = {},
-            onEndDateChange = {},
-            onActivitiesChange = {}
-        )
+                        Divider(color = Color.LightGray.copy(alpha = 0.3f))
+
+                        OutlinedTextField(
+                            value = "Summer Vacation 2024",
+                            onValueChange = {},
+                            label = { Text("Trip Title") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color(0xFF00BCD4),
+                                unfocusedBorderColor = Color.LightGray
+                            )
+                        )
+
+                        OutlinedTextField(
+                            value = "Bali, Indonesia",
+                            onValueChange = {},
+                            label = { Text("Destination") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color(0xFF00BCD4),
+                                unfocusedBorderColor = Color.LightGray
+                            )
+                        )
+                    }
+                }
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text(
+                            text = "Travel Dates",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF673AB7)
+                        )
+
+                        Divider(color = Color.LightGray.copy(alpha = 0.3f))
+
+                        OutlinedTextField(
+                            value = "Jan 15, 2024",
+                            onValueChange = {},
+                            label = { Text("Start Date") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            enabled = false,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                disabledBorderColor = Color.LightGray,
+                                disabledTextColor = Color.Black
+                            )
+                        )
+
+                        OutlinedTextField(
+                            value = "Jan 22, 2024",
+                            onValueChange = {},
+                            label = { Text("End Date") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            enabled = false,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                disabledBorderColor = Color.LightGray,
+                                disabledTextColor = Color.Black
+                            )
+                        )
+
+                        Text(
+                            text = "Duration: 7 days",
+                            fontSize = 14.sp,
+                            color = Color(0xFF00BCD4),
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.End
+                        )
+                    }
+                }
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text(
+                            text = "Activities & Notes",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF673AB7)
+                        )
+
+                        Divider(color = Color.LightGray.copy(alpha = 0.3f))
+
+                        OutlinedTextField(
+                            value = "Beach activities, temple tours, surfing lessons, explore local cuisine",
+                            onValueChange = {},
+                            label = { Text("What do you plan to do?") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(150.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color(0xFF00BCD4),
+                                unfocusedBorderColor = Color.LightGray
+                            ),
+                            maxLines = 6
+                        )
+                    }
+                }
+            }
+        }
     }
 }
