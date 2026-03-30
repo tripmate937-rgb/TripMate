@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import uk.ac.tees.mad.tripmate.screens.AuthScreen
 import uk.ac.tees.mad.tripmate.screens.HomeScreen
+import uk.ac.tees.mad.tripmate.screens.SettingsScreen
 import uk.ac.tees.mad.tripmate.screens.SplashScreen
 import uk.ac.tees.mad.tripmate.screens.TripScreen
 
@@ -85,6 +86,16 @@ fun NavGraph(
         }
 
         composable(Screen.Settings.route) {
+            SettingsScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onLogout = {
+                    navController.navigate(Screen.Auth.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }
