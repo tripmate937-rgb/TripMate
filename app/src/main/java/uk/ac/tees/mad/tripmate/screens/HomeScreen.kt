@@ -445,46 +445,371 @@ private fun formatDateRange(startDate: Long, endDate: Long): String {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun HomeScreenEmptyPreview() {
-    Surface(modifier = Modifier.fillMaxSize()) {
-        EmptyState(onAddTrip = {})
+    MaterialTheme {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "🧳",
+                    fontSize = 80.sp
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "No Trips Yet",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF673AB7)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Start planning your next adventure!",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF673AB7)
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Create Your First Trip",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun TripCardPreview() {
-    val sampleTrip = Trip(
-        id = "1",
-        title = "Summer Vacation in Bali",
-        destination = "Bali, Indonesia",
-        startDate = System.currentTimeMillis(),
-        endDate = System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000),
-        activities = "Beach, Temples, Surfing"
-    )
+    MaterialTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFF5F5F5))
+                .padding(16.dp)
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                ),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 4.dp
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(60.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        Color(0xFF00BCD4),
+                                        Color(0xFF673AB7)
+                                    )
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "📍",
+                            fontSize = 30.sp
+                        )
+                    }
 
-    Box(modifier = Modifier.padding(16.dp)) {
-        TripCard(
-            trip = sampleTrip,
-            onClick = {},
-            onDeleteClick = {}
-        )
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .align(Alignment.CenterVertically)
+                    ) {
+                        Text(
+                            text = "Summer Vacation in Bali",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF673AB7),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "📍",
+                                fontSize = 14.sp
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Bali, Indonesia",
+                                fontSize = 14.sp,
+                                color = Color.Gray,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "📅",
+                                fontSize = 12.sp
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Jan 15 - Jan 22 (7 days)",
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFF00BCD4).copy(alpha = 0.1f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "✏️",
+                                fontSize = 18.sp
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(Color.Red.copy(alpha = 0.1f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "🗑️",
+                                fontSize = 18.sp
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TripListPreview() {
+    MaterialTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color(0xFFF5F5F5)
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(3) { index ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White
+                        ),
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 4.dp
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(60.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(
+                                        brush = Brush.linearGradient(
+                                            colors = listOf(
+                                                Color(0xFF00BCD4),
+                                                Color(0xFF673AB7)
+                                            )
+                                        )
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "📍",
+                                    fontSize = 30.sp
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .align(Alignment.CenterVertically)
+                            ) {
+                                Text(
+                                    text = when(index) {
+                                        0 -> "Summer Vacation"
+                                        1 -> "Business Trip to Tokyo"
+                                        else -> "Weekend Getaway"
+                                    },
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF673AB7),
+                                    maxLines = 1
+                                )
+
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(text = "📍", fontSize = 14.sp)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = when(index) {
+                                            0 -> "Bali, Indonesia"
+                                            1 -> "Tokyo, Japan"
+                                            else -> "Paris, France"
+                                        },
+                                        fontSize = 14.sp,
+                                        color = Color.Gray,
+                                        maxLines = 1
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(text = "📅", fontSize = 12.sp)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = when(index) {
+                                            0 -> "Jan 15 - Jan 22 (7 days)"
+                                            1 -> "Feb 10 - Feb 14 (4 days)"
+                                            else -> "Mar 5 - Mar 7 (2 days)"
+                                        },
+                                        fontSize = 12.sp,
+                                        color = Color.Gray
+                                    )
+                                }
+                            }
+
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(0xFF00BCD4).copy(alpha = 0.1f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(text = "✏️", fontSize = 18.sp)
+                                }
+
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.Red.copy(alpha = 0.1f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(text = "🗑️", fontSize = 18.sp)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DeleteDialogPreview() {
-    val sampleTrip = Trip(
-        id = "1",
-        title = "Summer Vacation in Bali",
-        destination = "Bali, Indonesia",
-        startDate = System.currentTimeMillis(),
-        endDate = System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)
-    )
-
-    DeleteConfirmationDialog(
-        trip = sampleTrip,
-        onConfirm = {},
-        onDismiss = {}
-    )
+    MaterialTheme {
+        AlertDialog(
+            onDismissRequest = {},
+            icon = {
+                Text(
+                    text = "🗑️",
+                    fontSize = 48.sp
+                )
+            },
+            title = {
+                Text(
+                    text = "Delete Trip?",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to delete \"Summer Vacation in Bali\"? This action cannot be undone."
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Red
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {}) {
+                    Text("Cancel", color = Color(0xFF673AB7))
+                }
+            },
+            shape = RoundedCornerShape(16.dp)
+        )
+    }
 }
