@@ -69,6 +69,13 @@ class TripViewModel : ViewModel() {
         }
     }
 
+    fun updateTripCoordinates(latitude: Double, longitude: Double) {
+        _currentTrip.value = _currentTrip.value?.copy(
+            latitude = latitude,
+            longitude = longitude
+        )
+    }
+
     fun updateTripTitle(title: String) {
         _currentTrip.value = _currentTrip.value?.copy(title = title)
         clearValidationError()

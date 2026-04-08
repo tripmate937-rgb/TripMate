@@ -1,5 +1,7 @@
 package uk.ac.tees.mad.tripmate.screens
 
+import android.Manifest
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
@@ -21,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,13 +31,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import uk.ac.tees.mad.tripmate.data.model.Trip
 import uk.ac.tees.mad.tripmate.viewmodel.TripViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import uk.ac.tees.mad.tripmate.R
+import uk.ac.tees.mad.tripmate.utils.CalendarHelper
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun HomeScreen(
     onNavigateToTrip: (String) -> Unit,
@@ -46,6 +52,27 @@ fun HomeScreen(
     val error by viewModel.error.collectAsState()
 
     var showDeleteDialog by remember { mutableStateOf<Trip?>(null) }
+
+    val permissionsState = rememberMultiplePermissionsState(
+        permissions = listOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.READ_CALENDAR,
+            Manifest.permission.WRITE_CALENDAR
+        )
+    )
+
+    LaunchedEffect(Unit) {
+        if (!permissionsState.allPermissionsGranted) {
+            permissionsState.launchMultiplePermissionRequest()
+        }
+    }
+
+    LaunchedEffect(error) {
+        error?.let {
+            viewModel.clearError()
+        }
+    }
 
     LaunchedEffect(error) {
         error?.let {
@@ -364,6 +391,25 @@ private fun TripCard(
                     Image(
                         painter = painterResource(id = R.drawable.edit),
                         contentDescription = "Edit",
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF673AB7).copy(alpha = 0.1f))
+                        .clickable {
+                            val context = LocalContext.current
+                            CalendarHelper.addTripToCalendar(context, trip)
+                            Toast.makeText(context, "Added to calendar", Toast.LENGTH_SHORT).show()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.calendar),  // Use your calendar icon
+                        contentDescription = "Add to Calendar",
                         modifier = Modifier.size(18.dp)
                     )
                 }

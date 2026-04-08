@@ -2,7 +2,12 @@ package uk.ac.tees.mad.tripmate.screens
 
 import android.app.DatePickerDialog
 import androidx.compose.animation.*
-import androidx.compose.animation.core.*
+import android.widget.Toast
+import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import uk.ac.tees.mad.tripmate.utils.LocationHelper
+import uk.ac.tees.mad.tripmate.utils.CalendarHelper
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,6 +58,8 @@ fun TripScreen(
     val validationError by viewModel.validationError.collectAsState()
 
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showCalendarDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     LaunchedEffect(tripId) {
         viewModel.loadTrip(tripId)
@@ -60,8 +67,12 @@ fun TripScreen(
 
     LaunchedEffect(saveSuccess) {
         if (saveSuccess) {
-            onNavigateBack()
-            viewModel.resetSaveSuccess()
+            if (CalendarHelper.hasCalendarPermission(context)) {
+                showCalendarDialog = true
+            } else {
+                onNavigateBack()
+                viewModel.resetSaveSuccess()
+            }
         }
     }
 
@@ -70,6 +81,7 @@ fun TripScreen(
             viewModel.clearError()
         }
     }
+
 
     DisposableEffect(Unit) {
         onDispose {
@@ -160,7 +172,8 @@ fun TripScreen(
                         onDestinationChange = { viewModel.updateTripDestination(it) },
                         onStartDateChange = { viewModel.updateTripStartDate(it) },
                         onEndDateChange = { viewModel.updateTripEndDate(it) },
-                        onActivitiesChange = { viewModel.updateTripActivities(it) }
+                        onActivitiesChange = { viewModel.updateTripActivities(it) },        onCoordinatesChange = { lat, lng -> viewModel.updateTripCoordinates(lat, lng) }
+
                     )
                 }
             }
@@ -187,6 +200,43 @@ fun TripScreen(
                     Text(errorMessage)
                 }
             }
+            if (showCalendarDialog && currentTrip != null) {
+                AlertDialog(
+                    onDismissRequest = {
+                        showCalendarDialog = false
+                        onNavigateBack()
+                        viewModel.resetSaveSuccess()
+                    },
+                    title = { Text("Add to Calendar?") },
+                    text = { Text("Would you like to add this trip to your device calendar?") },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                CalendarHelper.addTripToCalendar(context, currentTrip!!)
+                                Toast.makeText(context, "Added to calendar!", Toast.LENGTH_SHORT).show()
+                                showCalendarDialog = false
+                                onNavigateBack()
+                                viewModel.resetSaveSuccess()
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF00BCD4)
+                            )
+                        ) {
+                            Text("Yes")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            showCalendarDialog = false
+                            onNavigateBack()
+                            viewModel.resetSaveSuccess()
+                        }) {
+                            Text("No", color = Color(0xFF673AB7))
+                        }
+                    },
+                    shape = RoundedCornerShape(16.dp)
+                )
+            }
         }
     }
 }
@@ -199,7 +249,8 @@ private fun TripForm(
     onDestinationChange: (String) -> Unit,
     onStartDateChange: (Long) -> Unit,
     onEndDateChange: (Long) -> Unit,
-    onActivitiesChange: (String) -> Unit
+    onActivitiesChange: (String) -> Unit,
+    onCoordinatesChange: (Double, Double) -> Unit = { _, _ -> }
 ) {
     val context = LocalContext.current
 
@@ -307,6 +358,45 @@ private fun TripForm(
                     ),
                     isError = validationError is ValidationError.EmptyDestination
                 )
+
+                // Add this RIGHT AFTER the destination OutlinedTextField
+                val scope = rememberCoroutineScope()
+
+                Button(
+                    onClick = {
+                        scope.launch {
+                            val location = LocationHelper.getCurrentLocation(context)
+                            if (location != null) {
+                                val address = LocationHelper.getAddressFromLocation(
+                                    context,
+                                    location.latitude,
+                                    location.longitude
+                                )
+                                address?.let {
+                                    onDestinationChange(it)
+                                    onCoordinatesChange(location.latitude, location.longitude)  // ADD THIS LINE
+                                }
+                                Toast.makeText(context, "Location: $address", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(context, "Please enable location permission", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF00BCD4).copy(alpha = 0.1f),
+                        contentColor = Color(0xFF00BCD4)
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MyLocation,
+                        contentDescription = "Use Current Location",
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Use Current Location")
+                }
             }
         }
 
@@ -657,6 +747,24 @@ fun TripScreenPreview() {
                                 unfocusedBorderColor = Color.LightGray
                             )
                         )
+
+                        Button(
+                            onClick = {},
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF00BCD4).copy(alpha = 0.1f),
+                                contentColor = Color(0xFF00BCD4)
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MyLocation,
+                                contentDescription = "Use Current Location",
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Use Current Location")
+                        }
                     }
                 }
 
