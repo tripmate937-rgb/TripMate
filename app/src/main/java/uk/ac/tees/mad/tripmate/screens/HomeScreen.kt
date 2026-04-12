@@ -245,6 +245,7 @@ private fun TripsList(
     onTripClick: (String) -> Unit,
     onDeleteClick: (Trip) -> Unit
 ) {
+    val context = LocalContext.current
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -257,7 +258,11 @@ private fun TripsList(
             TripCard(
                 trip = trip,
                 onClick = { onTripClick(trip.id) },
-                onDeleteClick = { onDeleteClick(trip) }
+                onDeleteClick = { onDeleteClick(trip) },
+                onAddToCalendar = { trip ->
+                    CalendarHelper.addTripToCalendar(context, trip)
+                    Toast.makeText(context, "Added to calendar!", Toast.LENGTH_SHORT).show()
+                }
             )
         }
     }
@@ -267,7 +272,8 @@ private fun TripsList(
 private fun TripCard(
     trip: Trip,
     onClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onAddToCalendar: (Trip) -> Unit
 ) {
     var isPressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
@@ -400,15 +406,11 @@ private fun TripCard(
                         .size(36.dp)
                         .clip(CircleShape)
                         .background(Color(0xFF673AB7).copy(alpha = 0.1f))
-                        .clickable {
-                            val context = LocalContext.current
-                            CalendarHelper.addTripToCalendar(context, trip)
-                            Toast.makeText(context, "Added to calendar", Toast.LENGTH_SHORT).show()
-                        },
+                        .clickable { onAddToCalendar(trip) },
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.calendar),  // Use your calendar icon
+                        painter = painterResource(id = R.drawable.calendar),
                         contentDescription = "Add to Calendar",
                         modifier = Modifier.size(18.dp)
                     )
