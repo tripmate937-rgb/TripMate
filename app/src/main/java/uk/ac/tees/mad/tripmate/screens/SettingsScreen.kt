@@ -24,14 +24,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 import uk.ac.tees.mad.tripmate.R
+import uk.ac.tees.mad.tripmate.viewmodel.TripViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    viewModel: TripViewModel = viewModel()
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showClearCacheDialog by remember { mutableStateOf(false) }
@@ -195,6 +198,9 @@ fun SettingsScreen(
         if (showClearCacheDialog) {
             ClearCacheDialog(
                 onConfirm = {
+                    currentUser?.uid?.let { userId ->
+                        viewModel.clearLocalCache(userId)  // ADD THIS
+                    }
                     cacheCleared = true
                     showClearCacheDialog = false
                 },

@@ -1,6 +1,7 @@
 package uk.ac.tees.mad.tripmate.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,8 +11,8 @@ import kotlinx.coroutines.launch
 import uk.ac.tees.mad.tripmate.data.model.Trip
 import uk.ac.tees.mad.tripmate.data.repository.TripRepository
 
-class TripViewModel : ViewModel() {
-    private val repository = TripRepository()
+class TripViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = TripRepository(application)
 
     private val _trips = MutableStateFlow<List<Trip>>(emptyList())
     val trips: StateFlow<List<Trip>> = _trips.asStateFlow()
@@ -36,6 +37,7 @@ class TripViewModel : ViewModel() {
 
     init {
         observeTrips()
+        syncUnsyncedTrips()
     }
 
     private fun observeTrips() {
@@ -47,6 +49,12 @@ class TripViewModel : ViewModel() {
                 .collect { tripList ->
                     _trips.value = tripList
                 }
+        }
+    }
+
+    private fun syncUnsyncedTrips() {
+        viewModelScope.launch {
+            repository.syncUnsyncedTrips()
         }
     }
 
@@ -67,13 +75,6 @@ class TripViewModel : ViewModel() {
                 _error.value = e.message ?: "Failed to load trip"
             }
         }
-    }
-
-    fun updateTripCoordinates(latitude: Double, longitude: Double) {
-        _currentTrip.value = _currentTrip.value?.copy(
-            latitude = latitude,
-            longitude = longitude
-        )
     }
 
     fun updateTripTitle(title: String) {
@@ -98,6 +99,13 @@ class TripViewModel : ViewModel() {
 
     fun updateTripActivities(activities: String) {
         _currentTrip.value = _currentTrip.value?.copy(activities = activities)
+    }
+
+    fun updateTripCoordinates(latitude: Double, longitude: Double) {
+        _currentTrip.value = _currentTrip.value?.copy(
+            latitude = latitude,
+            longitude = longitude
+        )
     }
 
     private fun validateTrip(trip: Trip): ValidationError? {
@@ -153,6 +161,12 @@ class TripViewModel : ViewModel() {
             }.onFailure { e ->
                 _error.value = e.message ?: "Failed to delete trip"
             }
+        }
+    }
+
+    fun clearLocalCache(userId: String) {
+        viewModelScope.launch {
+            repository.clearLocalCache(userId)
         }
     }
 

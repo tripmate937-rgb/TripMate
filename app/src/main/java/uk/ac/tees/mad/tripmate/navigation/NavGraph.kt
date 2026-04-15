@@ -94,7 +94,8 @@ fun NavGraph(
                     navController.navigate(Screen.Auth.route) {
                         popUpTo(0) { inclusive = true }
                     }
-                }
+                },
+                viewModel = tripViewModel
             )
         }
     }
