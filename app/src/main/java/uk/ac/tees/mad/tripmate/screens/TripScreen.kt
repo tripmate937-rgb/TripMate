@@ -67,17 +67,20 @@ fun TripScreen(
 
     LaunchedEffect(saveSuccess) {
         if (saveSuccess) {
-            if (CalendarHelper.hasCalendarPermission(context)) {
+            val tripToSave = currentTrip
+            viewModel.resetSaveSuccess()
+
+            if (tripToSave != null && CalendarHelper.hasCalendarPermission(context)) {
                 showCalendarDialog = true
             } else {
                 onNavigateBack()
-                viewModel.resetSaveSuccess()
             }
         }
     }
 
     LaunchedEffect(error) {
         error?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
             viewModel.clearError()
         }
     }
@@ -129,7 +132,11 @@ fun TripScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { viewModel.saveTrip() },
+                onClick = {
+                    if (!isSaving) {
+                        viewModel.saveTrip()
+                    }
+                },
                 containerColor = Color(0xFF00BCD4),
                 contentColor = Color.White,
                 modifier = Modifier.size(64.dp)
@@ -178,14 +185,60 @@ fun TripScreen(
                 }
             }
 
-            if (showDeleteDialog && currentTrip != null) {
-                DeleteTripDialog(
-                    trip = currentTrip!!,
-                    onConfirm = {
-                        viewModel.deleteTrip(tripId)
-                        showDeleteDialog = false
+            if (showCalendarDialog && currentTrip != null) {
+                AlertDialog(
+                    onDismissRequest = {
+                        showCalendarDialog = false
+                        viewModel.resetSaveSuccess()
+                        onNavigateBack()
                     },
-                    onDismiss = { showDeleteDialog = false }
+                    title = {
+                        Text(
+                            "Add to Calendar?",
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    text = {
+                        Column {
+                            Text("Would you like to add this trip to your device calendar?")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "Trip: ${currentTrip!!.title}",
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                val result = CalendarHelper.addTripToCalendar(context, currentTrip!!)
+                                if (result > 0) {
+                                    Toast.makeText(context, "Added to calendar!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, "Failed to add to calendar", Toast.LENGTH_SHORT).show()
+                                }
+                                showCalendarDialog = false
+                                viewModel.resetSaveSuccess()
+                                onNavigateBack()
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF00BCD4)
+                            )
+                        ) {
+                            Text("Yes, Add to Calendar")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            showCalendarDialog = false
+                            viewModel.resetSaveSuccess()
+                            onNavigateBack()
+                        }) {
+                            Text("Skip", color = Color(0xFF673AB7))
+                        }
+                    },
+                    shape = RoundedCornerShape(16.dp)
                 )
             }
 

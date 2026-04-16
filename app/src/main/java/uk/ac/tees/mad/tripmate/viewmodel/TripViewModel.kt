@@ -3,6 +3,7 @@ package uk.ac.tees.mad.tripmate.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,6 +14,7 @@ import uk.ac.tees.mad.tripmate.data.repository.TripRepository
 
 class TripViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = TripRepository(application)
+    private val auth = FirebaseAuth.getInstance()
 
     private val _trips = MutableStateFlow<List<Trip>>(emptyList())
     val trips: StateFlow<List<Trip>> = _trips.asStateFlow()
@@ -37,7 +39,12 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         observeTrips()
-        syncUnsyncedTrips()
+
+        auth.addAuthStateListener { firebaseAuth ->
+            if (firebaseAuth.currentUser != null) {
+                syncUnsyncedTrips()
+            }
+        }
     }
 
     private fun observeTrips() {

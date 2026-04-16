@@ -285,6 +285,8 @@ private fun TripCard(
         label = "scale"
     )
 
+    val context = LocalContext.current
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -406,7 +408,18 @@ private fun TripCard(
                         .size(36.dp)
                         .clip(CircleShape)
                         .background(Color(0xFF673AB7).copy(alpha = 0.1f))
-                        .clickable { onAddToCalendar(trip) },
+                        .clickable {
+                            if (CalendarHelper.hasCalendarPermission(context)) {
+                                val result = CalendarHelper.addTripToCalendar(context, trip)
+                                if (result > 0) {
+                                    Toast.makeText(context, "Added to calendar!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, "Failed to add to calendar", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                Toast.makeText(context, "Calendar permission required", Toast.LENGTH_LONG).show()
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
